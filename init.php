@@ -14,7 +14,4 @@ if (DEBUG) {
     ini_set('display_errors', false);
 }
 
-require_once ROOT_DIR . '/autoload.php';
-
-$config = include_once ROOT_DIR . '/config.php';
-$template = new \KeywordAPI\Template();
+require_once ROOT_DIR . '/vendor/autoload.php';

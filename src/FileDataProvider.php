@@ -3,7 +3,12 @@
 namespace KeywordAPI;
 
 use Exception;
+use SplFileObject;
 
+/**
+ * Class FileDataProvider
+ * @package KeywordAPI
+ */
 class FileDataProvider extends DataProvider
 {
     /**
@@ -17,7 +22,6 @@ class FileDataProvider extends DataProvider
      * @param string $category
      *
      * @return bool
-     * @throws Exception
      */
     public function categoryExists(string $category): bool
     {
@@ -37,48 +41,78 @@ class FileDataProvider extends DataProvider
      */
     public function getKeywords(string $category, int $count = -1, $contains = null): array
     {
-        try {
-            $keywords = [];
-            $category_path = $this->makePath($category);
-            $files = glob($category_path . '/*.txt');
-            shuffle($files);
-            
-            foreach ($files as $file) {
-                $lines = file($file);
-                $lines = array_map('trim', $lines);
-                
-                if (!empty($contains)) {
-                    $lines = array_filter($lines, function ($line) use ($contains) {
-                        return strpos($line, $contains) !== false;
-                    });
-                }
+        $keywords = [];
+        $category_path = $this->makePath($category);
+        $files = glob($category_path . '/*.txt');
+        shuffle($files);
     
-                shuffle($lines);
-                
-                $slice = array_slice($lines, 0, $count);
-                $keywords = empty($keywords) ? $slice : array_merge($keywords, $slice);
-                
-                if ($count > 0 && count($lines) < $count) {
-                    $count -= count($lines);
-                    continue;
-                }
-    
-                break;
+        foreach ($files as $file) {
+            $lines = file($file);
+            $lines = array_map('trim', $lines);
+        
+            if (!empty($contains)) {
+                $lines = array_filter($lines, function ($line) use ($contains) {
+                    return strpos($line, $contains) !== false;
+                });
             }
-            
-            return $keywords;
-        } catch (Exception $e) {
-            return [];
+        
+            shuffle($lines);
+        
+            $slice = array_slice($lines, 0, $count);
+            $keywords = empty($keywords) ? $slice : array_merge($keywords, $slice);
+        
+            if ($count > 0 && count($lines) < $count) {
+                $count -= count($lines);
+                continue;
+            }
+        
+            break;
         }
+    
+        return $keywords;
+    }
+    
+    /**
+     * List all categories
+     *
+     * @return array
+     */
+    public function categories(): array
+    {
+        $path = $this->makePath();
+        $dirs = glob($path . '/*', GLOB_ONLYDIR);
+        return array_map(function ($dir) {
+            return basename($dir);
+        }, $dirs);
+    }
+    
+    /**
+     * Count keywords in category
+     *
+     * @param string $category
+     *
+     * @return int
+     */
+    public function countKeywordsInCategory(string $category): int
+    {
+        $path = $this->makePath($category);
+        $files = glob($path . '/*.txt');
+        $total_count = 0;
+        foreach ($files as $file) {
+            $f = new SplFileObject($file, 'r');
+            $f->seek(PHP_INT_MAX);
+            $total_count += $f->key() + 1;
+        }
+        
+        return (int)$total_count;
     }
     
     /**
      * @param string $path
      *
      * @return string
-     * @throws Exception
      */
-    private function makePath(string $path): string
+    private function makePath(string $path = ''): string
     {
         $db_path = $this->getConfigParam('dir');
         

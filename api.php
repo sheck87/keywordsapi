@@ -2,6 +2,7 @@
 
 require_once 'init.php';
 
+use KeywordAPI\Config;
 use KeywordAPI\DataProviderFactory;
 use KeywordAPI\KeywordsRepository;
 use KeywordAPI\Request;
@@ -11,6 +12,8 @@ if (Request::isPost() === false) {
     Response::setContent('<h1>404 Not Found</h1>');
     Response::send(404);
 }
+
+$config = Config::instance()->getConfig();
 
 try
 {

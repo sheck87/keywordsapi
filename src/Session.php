@@ -27,4 +27,43 @@ class Session
     {
         $_SESSION[$key] = $value;
     }
+    
+    /**
+     * @param string $key
+     *
+     * @return bool
+     */
+    public static function has(string $key):bool
+    {
+        return !is_null(static::get($key, null));
+    }
+    
+    /**
+     * @param string $key
+     *
+     * @return mixed
+     */
+    public static function pull(string $key)
+    {
+        $val = static::get($key);
+        unset($_SESSION[$key]);
+        
+        return $val;
+    }
+    
+    /**
+     * @param string $key
+     */
+    public static function del(string $key)
+    {
+        unset($_SESSION[$key]);
+    }
+    
+    /**
+     *
+     */
+    public static function destroy()
+    {
+        session_destroy();
+    }
 }

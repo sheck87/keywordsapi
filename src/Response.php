@@ -17,11 +17,23 @@ class Response
      * Redirect
      *
      * @param string $to
+     * @param array $session
      */
-    public static function redirect(string $to = '/')
+    public static function redirect(string $to = '/', array $session = [])
     {
-        $url = Request::currentDomain() . '/' . ltrim($to, '/');
-        header("Location: {$url}");
+        foreach ($session as $k => $v) {
+            Session::set($k, $v);
+        }
+        
+        $folder = Config::instance()->get('folder');
+        if (empty($folder)) {
+            $delim = '/';
+        } else {
+            $delim = '/' . $folder . '/';
+        }
+        $url = Request::currentDomain() . $delim . ltrim($to, '/');
+        $scheme = Request::getRequestScheme();
+        header("Location: {$scheme}{$url}");
         die;
     }
     

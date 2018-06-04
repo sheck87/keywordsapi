@@ -47,18 +47,39 @@ abstract class DataProvider
     abstract public function getKeywords(string $category, int $count = -1, $contains = null): array;
     
     /**
+     * List all categories
+     *
+     * @return array
+     */
+    abstract public function categories():array;
+    
+    /**
+     * Count keywords in category
+     *
+     * @param string $category
+     *
+     * @return int
+     */
+    abstract public function countKeywordsInCategory(string $category):int;
+    
+    /**
+     * DataProvider type
+     *
+     * @return string
+     */
+    public function type():string
+    {
+        return $this->config['engine'];
+    }
+    
+    /**
      * @param string $key
      * @param null $default
      *
      * @return mixed
-     * @throws Exception
      */
     protected function getConfigParam(string $key, $default = null)
     {
-        if (empty($this->config_key)) {
-            throw new Exception("Set `config_key` before call this methods!");
-        }
-        
         return $this->config['db'][$this->config_key][$key] ?? $default;
     }
 }

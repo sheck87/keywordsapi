@@ -48,10 +48,8 @@ class Request
     /**
      * @return array
      */
-    public static function all():array
+    public static function all(): array
     {
-        $array = [];
-        
         switch (static::getRequestMethod()) {
             case 'POST':
                 $array = $_POST;
@@ -64,6 +62,14 @@ class Request
         }
         
         return $array;
+    }
+    
+    /**
+     * @return string
+     */
+    public static function getRequestScheme(): string
+    {
+        return stripos($_SERVER['SERVER_PROTOCOL'], 'https') === true ? 'https://' : 'http://';
     }
     
 }
